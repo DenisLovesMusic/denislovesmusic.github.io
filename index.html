@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Musical App</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #121212;
+  color: white;
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 260px;
+  background: #1e1e1e;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.song {
+  padding: 10px;
+  margin: 5px 0;
+  background: #2a2a2a;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.song:hover {
+  background: #3a3a3a;
+}
+
+.main {
+  flex: 1;
+  padding: 20px;
+}
+
+button {
+  padding: 10px;
+  margin: 5px;
+  background: #1db954;
+  border: none;
+  color: white;
+  border-radius: 6px;
+}
+
+audio {
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* 📱 MÓVIL */
+@media (max-width: 768px) {
+
+  body {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: 65px;          /* 👈 más estrecho aún */
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding: 4px 6px;
+    gap: 6px;
+  }
+
+  .song {
+    display: inline-block;
+    min-width: 110px;
+    padding: 6px;
+    font-size: 11px;
+    margin: 0 6px 0 0;
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  .main {
+    flex: 1;
+    padding: 12px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar" id="list"></div>
+
+<div class="main">
+  <h2 id="title">Selecciona canción</h2>
+
+  <audio id="audio" controls></audio>
+
+  <div>
+    <button onclick="prev()">⏮</button>
+    <button onclick="next()">⏭</button>
+    <button onclick="openSheet()">📄 Partitura</button>
+  </div>
+</div>
+
+<script>
+
+const songs = [
+  {
+    name: "A Million Dreams",
+    audio: "songs/a_million_dreams.mp3",
+    sheet: "a_million_dreams.pdf"
+  },
+  {
+    name: "From Now On",
+    audio: "songs/from_now_on.mp3",
+    sheet: "from_now_on.pdf"
+  },
+  {
+    name: "Come Alive",
+    audio: "songs/come_alive.mp3",
+    sheet: "come_alive.pdf"
+  }
+];
+
+let index = 0;
+
+const audio = document.getElementById("audio");
+const title = document.getElementById("title");
+const list = document.getElementById("list");
+
+function loadList() {
+  songs.forEach((s,i)=>{
+    let div = document.createElement("div");
+    div.className = "song";
+    div.innerText = s.name;
+    div.onclick = () => play(i);
+    list.appendChild(div);
+  });
+}
+
+function play(i){
+  index = i;
+  title.innerText = songs[i].name;
+  audio.src = songs[i].audio;
+  audio.pause();
+  localStorage.setItem("last", i);
+}
+
+function next(){
+  index = (index + 1) % songs.length;
+  play(index);
+  audio.play();
+}
+
+function prev(){
+  index = (index - 1 + songs.length) % songs.length;
+  play(index);
+  audio.play();
+}
+
+function openSheet(){
+  window.open(songs[index].sheet, "_blank");
+}
+
+window.onload = () => {
+  loadList();
+
+  let saved = localStorage.getItem("last");
+  if(saved !== null) play(parseInt(saved));
+};
+
+</script>
+
+</body>
+</html>
